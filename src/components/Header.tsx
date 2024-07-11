@@ -61,7 +61,8 @@ const Header = () => {
     <Wrapper>
       <TitleWrapper>
         <ImageWrapper href='https://homemade-apps.vercel.app/' target='_blank'>
-          <Image src="./images/ps-favicon.png" alt="" />
+          {/* <Image src="./images/ps-favicon.png" alt="" /> */}
+          <Image src="./images/200.png" alt="" />
         </ImageWrapper>
         <Title>
           Private Word Stock

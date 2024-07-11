@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Tooltip from '@mui/material/Tooltip';
 
+
 const Wrapper = styled.div`
   vertical-align: middle;
   display: block;
@@ -37,8 +38,13 @@ const WordItemDelBtn = styled.div`
 // widthを指定しないとoverflow: hidden;が効かない
 const WordItemSpace = styled.div`
   width: 0;
-  overflow-x: hidden;
+  height: 4rem;
+  overflow: hidden;
   flex-grow: 7;
+  font-size: 2rem;
+  @media (max-width: 700px) {
+    height: auto;
+  }
 `
 
 const WordItemCopyBtn = styled.div`
@@ -48,7 +54,7 @@ const WordItemCopyBtn = styled.div`
 
 
 type Props = {
-  itemIndex: number,
+  itemIndex: number | undefined,
   itemWord: string
 }
 

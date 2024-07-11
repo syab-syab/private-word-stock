@@ -2,9 +2,10 @@ import React, { useState} from 'react'
 import styled from 'styled-components'
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
-import WordItemWrapper from './WordItemWrapper';
+import MainContents from './MainContents';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import AddModal from './modal/AddModal';
+import AddWord from './modal/AddWord';
+import { Tooltip } from '@mui/material';
 
 
 //   height: 100vw;にするか否か
@@ -68,22 +69,25 @@ const Main = () => {
     <main>
       <Contents>
 
-        <WordItemWrapper />
+        <MainContents />
 
         <ResetBtnWrapper>
-          <Fab onClick={() => reset()} color="secondary">
-            <RestartAltIcon  fontSize='large' />
-          </Fab>            
+          <Tooltip title={<h1>Reset</h1>} arrow>
+            <Fab onClick={() => reset()} color="secondary">
+              <RestartAltIcon  fontSize='large' />
+            </Fab>
+          </Tooltip>
         </ResetBtnWrapper>
         <BtnWrapper>
-
-          <Fab onClick={() => toggleShowModal()} color="primary" aria-label="add">
-            <AddIcon  fontSize='large' />
-          </Fab>
+          <Tooltip title={<h1>Add Word</h1>} arrow>
+            <Fab onClick={() => toggleShowModal()} color="primary" aria-label="add">
+              <AddIcon  fontSize='large' />
+            </Fab>
+          </Tooltip>
         </BtnWrapper>
       </Contents>
 
-      <AddModal show={showModal} func={toggleShowModal} />
+      <AddWord show={showModal} func={toggleShowModal} />
     </main>
   )
 }

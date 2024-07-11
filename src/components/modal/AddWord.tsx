@@ -77,14 +77,6 @@ const Label = styled.label`
   font-weight: 700;
 `
 
-const InputText = styled.input`
-  appearance: auto;
-  background-color: #D9D9D9;
-  width: 100%;
-  font-size: 2rem;
-  border: 0.2rem solid black;
-`
-
 const MiniMessage = styled.span`
   color: red;
   font-weight: bold;
@@ -97,12 +89,6 @@ const TextArea = styled.textarea`
   font-size: 2rem;
   resize: none;
   border: 0.2rem solid black;
-`
-
-// ラジオボタンはnameに同じ文字列を指定する
-const InputRadio = styled.input`
-  appearance: auto;
-  background-color: #D9D9D9;
 `
 
 const Select = styled.select`
@@ -132,9 +118,11 @@ const CloseBtn = styled.div`
 type Props = {
   show: boolean,
   func: () => void
+  // ワードを追加したらそのカテゴリをすぐに表示できるようにMainContentsからsetSelectedCategoryを渡してもらう
+  // 多分Main.tsxの子要素からMainContentsの子要素に変える必要がある
 }
 
-const AddModal = (props: Props) => {
+const AddWord = (props: Props) => {
   const [word, setWord] = useState<string>("")
   const [selectedRadio, setSelectedRadio] = useState<string>("existing")
   const [existingCategoryName, setExistingCategoryName] = useState<string>("")
@@ -144,17 +132,11 @@ const AddModal = (props: Props) => {
     setWord(e.target.value)
   }
 
-  const handleRadioChange = (val: string): void => {
-    setSelectedRadio(val);
-  }
 
   const handleExistingCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
     setExistingCategoryName(e.target.value)
   }
 
-  const handleNewCategoryNameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setNewCategoryName(e.target.value)
-  }
 
 
   // 入力された文に改行があったら複数のワードを一気に登録できる
@@ -187,7 +169,7 @@ const AddModal = (props: Props) => {
     return (
       <Wrapper>
         <Modal>
-          <Heading>新規追加</Heading>
+          <Heading>新規ワード追加</Heading>
           <InputWrapper>
             <Label htmlFor='text'>
                 ワード              
@@ -199,38 +181,16 @@ const AddModal = (props: Props) => {
             <br />
             <TextArea onChange={handleWordChange} value={word} id="text" />
           </InputWrapper>
+          {/* 既存のみにする */}
           <InputWrapper>
             <SubHeading>カテゴリ</SubHeading>
-            <InputRadio
-              checked={selectedRadio === "existing"}
-              type="radio"
-              name="category"
-              value="existing"
-              id="existing"
-              onChange={() => handleRadioChange("existing")}
-              />
-            <Label>既存</Label>
-            <br />
+            {/* カテゴリが無いときは先にカテゴリを作成するように促す */}
             <Select disabled={selectedRadio !== "existing"} onChange={handleExistingCategoryChange}>
               <option value="test">test</option>
               <option value="test2">test2</option>
             </Select>
             <br />
-            <InputRadio
-              checked={selectedRadio === "new"}
-              type="radio"
-              name="category"
-              value="new"
-              id="new"
-              onChange={() => handleRadioChange("new")}
-            />
-            <Label>新規</Label>
-            <br />
-            <InputText
-              disabled={selectedRadio !== "new"}
-              type="text" value={newCategoryName}
-              onChange={handleNewCategoryNameChange}
-            />
+
           </InputWrapper>
           <BtnWrapper>
             <SubscribeBtn onClick={subscribeNewWord}>
@@ -250,4 +210,4 @@ const AddModal = (props: Props) => {
 
 }
 
-export default AddModal
+export default AddWord
