@@ -9,7 +9,13 @@ import { db } from '../models/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import AddIcon from '@mui/icons-material/Add';
 import AddCategory from './modal/AddCategory';
-import { Add } from '@mui/icons-material';
+import AddWord from './modal/AddWord';
+import Fab from '@mui/material/Fab';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { resetData } from '../models/db';
+import { Category } from '../models/Category';
+// import { localSetItem, localGetItem } from '../functions/localStorageFunc';
+
 
 
 // pc画面で2列にするためにflex-grow: 1; display: flex; flex-wrap: wrap;
@@ -58,6 +64,26 @@ const EmptyMessage = styled.h1`
   }
 `
 
+const BtnWrapper = styled.div`
+  position: fixed;
+  bottom: 5rem;
+  right: 3rem;
+  @media (max-width: 700px) {
+    bottom: 3rem;
+    right: 3rem;
+  }
+`
+
+const ResetBtnWrapper = styled.div`
+  position: fixed;
+  bottom: 13rem;
+  right: 3rem;
+  @media (max-width: 700px) {
+    bottom: 10rem;
+    right: 3rem;
+  }
+`
+
 const MainContents = () => {
   const csvData = [
     ["おはようございます"],
@@ -68,26 +94,56 @@ const MainContents = () => {
   ];
 
 
+  // const [selectedCategory, setSelectedCategory] = useState<string>(String(allCategoryId[0]))
+  const [showAddWord, setShowAddWord] = useState<boolean>(false)
+  const [showAddCategory, setShowAddCategory] = useState<boolean>(false)
+
+  // const toggleSelectedCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   setSelectedCategory(e.target.value)
+  //   console.log(selectedCategory)
+  // }
+
+  const toggleShowAddWord = (): void => {
+   setShowAddWord(!showAddWord) 
+  }
+
+  const toggleShowAddCategory = (): void => {
+    setShowAddCategory(!showAddCategory)
+  }
+
+  const allCategories: Array<Category> | undefined = useLiveQuery(() => db.categories.toArray());
+
+  // const idExtraction = (arr: Array<Category> | undefined) => {
+  //   let idArr: Array<any> | undefined
+  //   arr?.forEach(a => {
+  //     idArr?.push(a.id)
+  //   })
+  //   return idArr
+  // }
+
+  // const allCategoryId: Array<number> | undefined = idExtraction(allCategories)
+
+  // 本番でデータベースが空の時(カテゴリが全削除されている状態)
+  const hasAnyCategory = useLiveQuery(async () => {
+    const categoryCount = await db.categories.count();
+    return categoryCount > 0;
+  });
+
+  // カテゴリIDの状態管理が一番の問題児
   const [selectedCategory, setSelectedCategory] = useState<string>("1")
-  const [showModal, setShowModal] = useState<boolean>(false)
 
   const toggleSelectedCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedCategory(e.target.value)
     console.log(selectedCategory)
   }
 
-  const toggleShowModal = (): void => {
-    setShowModal(!showModal)
-  }
-
-  const allCategories = useLiveQuery(() => db.categories.toArray());
-
   const deleteCategory = (): void => {
     // 紐づいているワードごと削除する
     const tmp = window.confirm("このカテゴリを削除しますか？")
     if (tmp) {
-      // db.deleteCategory(Number(selectedCategory))
+      db.deleteCategory(Number(selectedCategory))
       alert("削除しました")
+      setSelectedCategory("1")
     }
   }
 
@@ -96,17 +152,25 @@ const MainContents = () => {
     [Number(selectedCategory)]
   );
 
-  // 本番でデータベースが空の時(カテゴリが全削除されている状態)
-  const hasAnyCategory = useLiveQuery(async () => {
-    const categoryCount = await db.categories.count();
-    return categoryCount > 0;
-  });
+  const reset = (): void => {
+
+    if (window.confirm("初期化しますか？")) {
+      resetData()
+      alert("初期化しました。")
+    }
+  }
 
   return hasAnyCategory ? (
     <Wrapper>
       <SelectCategoryWrapper>
+        <label>カテゴリ</label>
+        <Tooltip title={<h1>Add Category </h1>} arrow>
+          <span onClick={toggleShowAddCategory}>
+            <AddIcon fontSize='large' color="primary" />
+          </span>
+        </Tooltip>
+        <br />
         <SelectCategory onChange={toggleSelectedCategory}>
-          {/* <option value="0" key={0}>セレクトしてください</option> */}
           {
             allCategories?.map(c => {
               return (
@@ -129,11 +193,6 @@ const MainContents = () => {
             <DeleteIcon fontSize='large' />
           </span>
         </Tooltip>
-        <Tooltip title={<h1>Add Category </h1>} arrow>
-          <span onClick={toggleShowModal}>
-            <AddIcon fontSize='large' />
-          </span>
-        </Tooltip>
       </IconWrapper>
       <AllItemsWrapper>
         {
@@ -144,7 +203,22 @@ const MainContents = () => {
           })
         }
     </AllItemsWrapper>
-    <AddCategory show={showModal} func={toggleShowModal} />
+    <ResetBtnWrapper>
+      <Tooltip title={<h1>Reset</h1>} arrow>
+        <Fab onClick={() => reset()} color="secondary">
+          <RestartAltIcon  fontSize='large' />
+        </Fab>
+      </Tooltip>
+    </ResetBtnWrapper>
+    <BtnWrapper>
+      <Tooltip title={<h1>Add Word</h1>} arrow>
+        <Fab onClick={() => toggleShowAddWord()} color="primary" aria-label="add">
+          <AddIcon  fontSize='large' />
+        </Fab>
+      </Tooltip>
+    </BtnWrapper>
+    <AddCategory show={showAddCategory} func={toggleShowAddCategory} />
+    <AddWord show={showAddWord} func={toggleShowAddWord} allCategories={allCategories} setState={setSelectedCategory} />
     </Wrapper>
   ) : (
     <Wrapper>
@@ -153,8 +227,20 @@ const MainContents = () => {
         <br />
         登録されているワードは
         <br />
-        ありません
+        ありません。
       </EmptyMessage>
+      <div>
+        <h1 onClick={toggleShowAddCategory}>カテゴリ追加</h1>
+      </div>
+      <BtnWrapper>
+      <Tooltip title={<h1>Add Word</h1>} arrow>
+        <Fab onClick={() => toggleShowAddWord()} color="primary" aria-label="add">
+          <AddIcon  fontSize='large' />
+        </Fab>
+      </Tooltip>
+    </BtnWrapper>
+    <AddCategory show={showAddCategory} func={toggleShowAddCategory} />
+    {/* <AddWord show={showAddWord} func={toggleShowAddWord} /> */}
     </Wrapper>
   )
 }

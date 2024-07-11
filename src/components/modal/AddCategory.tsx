@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import { db } from '../../models/db'
 
 
 const Wrapper = styled.div`
@@ -102,6 +103,7 @@ type Props = {
   show: boolean,
   func: () => void
   // カテゴリを追加したらそのカテゴリをすぐに表示できるようにMainContentsからsetSelectedCategoryを渡してもらう
+  // setState: React.Dispatch<React.SetStateAction<string>>
 }
 
 
@@ -113,8 +115,11 @@ const AddCategory = (props: Props) => {
   const subscribeNewCategory = (): void => {
     const tmp = window.confirm("カテゴリを新規追加しますか？")
     if (tmp) {
+      db.categories.add({name})
+      setName("")
       alert("追加しました")
       props.func()
+      // props.setState()
     }
   }
 

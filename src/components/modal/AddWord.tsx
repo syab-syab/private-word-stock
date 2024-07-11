@@ -1,5 +1,7 @@
 import React, {useState} from 'react'
 import styled from 'styled-components'
+import { db } from '../../models/db'
+import { Category } from '../../models/Category'
 
 const Wrapper = styled.div`
   position:fixed;
@@ -117,27 +119,24 @@ const CloseBtn = styled.div`
 
 type Props = {
   show: boolean,
-  func: () => void
+  func: () => void,
   // ワードを追加したらそのカテゴリをすぐに表示できるようにMainContentsからsetSelectedCategoryを渡してもらう
-  // 多分Main.tsxの子要素からMainContentsの子要素に変える必要がある
+  allCategories: Array<Category> | undefined,
+  setState: React.Dispatch<React.SetStateAction<string>>
 }
 
 const AddWord = (props: Props) => {
   const [word, setWord] = useState<string>("")
-  const [selectedRadio, setSelectedRadio] = useState<string>("existing")
-  const [existingCategoryName, setExistingCategoryName] = useState<string>("")
-  const [newCategoryName, setNewCategoryName] = useState<string>("")
+  const [categoryId, setCategoryId] = useState<string>("")
 
   const handleWordChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     setWord(e.target.value)
   }
 
 
-  const handleExistingCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
-    setExistingCategoryName(e.target.value)
+  const handleCategoryId = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    setCategoryId(e.target.value)
   }
-
-
 
   // 入力された文に改行があったら複数のワードを一気に登録できる
   const subscribeNewWord = (): void => {
@@ -145,24 +144,21 @@ const AddWord = (props: Props) => {
     // 改行が無いものもあるものも配列にする
     // 作成された配列を回して格納していく
     // ただし、配列の要素に一文字以下のモノがあればやり直し
-    const tmp: Array<string> = word.includes("\n") ? word.split("\n") : [word]
-    const check: boolean = tmp.some(t => t.length <= 1)
+    const newWords: Array<string> = word.includes("\n") ? word.split("\n") : [word]
+    const check: boolean = newWords.some(t => t.length <= 1)
     if (check) {
       alert('一文字以上でお願いします。')
     } else {
-      console.log(tmp)
-      if (selectedRadio==="existing") {
-        console.log(existingCategoryName)
-      } else if (selectedRadio==="new") {
-        console.log(newCategoryName)
-        setNewCategoryName("")
-      } else {
-        alert("エラー")
-      }
+      newWords.forEach(w => {
+        db.words.add({
+          content: w,
+          categoryId: Number(categoryId)
+        })
+      });
+      setWord("")
+      props.setState(categoryId)
+      props.func()
     }
-    setWord("")
-    setSelectedRadio("existing")
-    props.func()
   }
 
   if (props.show) {
@@ -181,16 +177,16 @@ const AddWord = (props: Props) => {
             <br />
             <TextArea onChange={handleWordChange} value={word} id="text" />
           </InputWrapper>
-          {/* 既存のみにする */}
           <InputWrapper>
             <SubHeading>カテゴリ</SubHeading>
-            {/* カテゴリが無いときは先にカテゴリを作成するように促す */}
-            <Select disabled={selectedRadio !== "existing"} onChange={handleExistingCategoryChange}>
-              <option value="test">test</option>
-              <option value="test2">test2</option>
+            <Select onChange={handleCategoryId}>
+              {
+                props.allCategories?.map(c => {
+                  return <option value={c.id} key={c.id}>{c.name}</option>
+                })
+              }
             </Select>
             <br />
-
           </InputWrapper>
           <BtnWrapper>
             <SubscribeBtn onClick={subscribeNewWord}>
