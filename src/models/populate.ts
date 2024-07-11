@@ -4,49 +4,45 @@ import { db } from "./db";
 export async function populate() {
 
   const categoryId = await db.categories.add({
-    name: "定型文"
+    name: "あいさつ"
   });
 
   await db.words.bulkAdd([
     {
       categoryId,
-      content: "お世話になっております。"
+      content: "おはようございます"
     },
     {
       categoryId,
-      content: "大変恐縮ですが、"
+      content: "こんにちは"
     },
     {
       categoryId,
-      content: "ますますのご健康とご活躍をお祈りしております。"
+      content: "ごきげんよう"
     },
     {
       categoryId,
-      content: "今後とも変わらぬお引き立てを賜りますようお願い申し上げます。"
+      content: "さようなら"
     },
     {
       categoryId,
-      content: "誠に残念ではございますが、"
+      content: "こんばんは"
     },
     {
       categoryId,
-      content: "大変申し訳ございませんが、"
+      content: "おやすみなさい"
     },
     {
       categoryId,
-      content: "これからのご活躍を心よりお祈り申し上げます。"
+      content: "はじめまして"
     },
     {
       categoryId,
-      content: "私事ではありますが、"
+      content: "よろしくお願いします"
     },
     {
       categoryId,
-      content: "ご指導ご鞭撻のほど、"
-    },
-    {
-      categoryId,
-      content: "今後ともよろしくお願いいたします。"
+      content: "失礼します"
     }
   ]);
 }

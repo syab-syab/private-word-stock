@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import styled from 'styled-components';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Tooltip from '@mui/material/Tooltip';
-import DownloadIcon from '@mui/icons-material/Download';
-import { CSVLink } from "react-csv";
+// import DownloadIcon from '@mui/icons-material/Download';
+// import { CSVLink } from "react-csv";
 import WordItem from './WordItem';
 import { db } from '../models/db';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -11,10 +11,10 @@ import AddIcon from '@mui/icons-material/Add';
 import AddCategory from './modal/AddCategory';
 import AddWord from './modal/AddWord';
 import Fab from '@mui/material/Fab';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import { resetData } from '../models/db';
+// import RestartAltIcon from '@mui/icons-material/RestartAlt';
+// import { resetData } from '../models/db';
 import { Category } from '../models/Category';
-// import { localSetItem, localGetItem } from '../functions/localStorageFunc';
+import { localSetItem, localGetItem } from '../functions/localStorageFunc';
 
 
 
@@ -74,24 +74,24 @@ const BtnWrapper = styled.div`
   }
 `
 
-const ResetBtnWrapper = styled.div`
-  position: fixed;
-  bottom: 13rem;
-  right: 3rem;
-  @media (max-width: 700px) {
-    bottom: 10rem;
-    right: 3rem;
-  }
-`
+// const ResetBtnWrapper = styled.div`
+//   position: fixed;
+//   bottom: 13rem;
+//   right: 3rem;
+//   @media (max-width: 700px) {
+//     bottom: 10rem;
+//     right: 3rem;
+//   }
+// `
 
 const MainContents = () => {
-  const csvData = [
-    ["おはようございます"],
-    ["こんにちは"],
-    ["こんばんは"],
-    ["おやすみなさい"],
-    ["ごきげんよう"]
-  ];
+  // const csvData = [
+  //   ["おはようございます"],
+  //   ["こんにちは"],
+  //   ["こんばんは"],
+  //   ["おやすみなさい"],
+  //   ["ごきげんよう"]
+  // ];
 
 
   // const [selectedCategory, setSelectedCategory] = useState<string>(String(allCategoryId[0]))
@@ -114,14 +114,31 @@ const MainContents = () => {
   const allCategories: Array<Category> | undefined = useLiveQuery(() => db.categories.toArray());
 
   // const idExtraction = (arr: Array<Category> | undefined) => {
-  //   let idArr: Array<any> | undefined
-  //   arr?.forEach(a => {
+  //   let idArr: Array<any> | undefined = []
+  //   if (arr !== undefined) {
+  //         arr?.forEach(a => {
   //     idArr?.push(a.id)
   //   })
+  //   }
   //   return idArr
   // }
 
-  // const allCategoryId: Array<number> | undefined = idExtraction(allCategories)
+  // const firstCategoryId: number = idExtraction(allCategories)[0]
+
+  // カテゴリIDの状態管理が一番の問題児
+  const localSelectedCategory: string = "localSelectedCategory"
+  
+  const localSelectedCVal: string | any = localGetItem(localSelectedCategory)
+
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    !!localSelectedCVal === false ? "1" : localSelectedCVal
+  )
+
+
+  const toggleSelectedCategory = (val: string) => {
+    setSelectedCategory(val)
+    localSetItem(localSelectedCategory, val)
+  }
 
   // 本番でデータベースが空の時(カテゴリが全削除されている状態)
   const hasAnyCategory = useLiveQuery(async () => {
@@ -129,13 +146,6 @@ const MainContents = () => {
     return categoryCount > 0;
   });
 
-  // カテゴリIDの状態管理が一番の問題児
-  const [selectedCategory, setSelectedCategory] = useState<string>("1")
-
-  const toggleSelectedCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(e.target.value)
-    console.log(selectedCategory)
-  }
 
   const deleteCategory = (): void => {
     // 紐づいているワードごと削除する
@@ -152,13 +162,24 @@ const MainContents = () => {
     [Number(selectedCategory)]
   );
 
-  const reset = (): void => {
 
-    if (window.confirm("初期化しますか？")) {
-      resetData()
-      alert("初期化しました。")
-    }
-  }
+
+  // const csvData = [
+  //   ["おはようございます"],
+  //   ["こんにちは"],
+  //   ["こんばんは"],
+  //   ["おやすみなさい"],
+  //   ["ごきげんよう"]
+  // ];
+
+
+  // const reset = (): void => {
+
+  //   if (window.confirm("初期化しますか？")) {
+  //     resetData()
+  //     alert("初期化しました。")
+  //   }
+  // }
 
   return hasAnyCategory ? (
     <Wrapper>
@@ -170,7 +191,7 @@ const MainContents = () => {
           </span>
         </Tooltip>
         <br />
-        <SelectCategory onChange={toggleSelectedCategory}>
+        <SelectCategory onChange={(e) => toggleSelectedCategory(e.target.value)} value={selectedCategory}>
           {
             allCategories?.map(c => {
               return (
@@ -183,16 +204,25 @@ const MainContents = () => {
       <IconWrapper>
         <Tooltip title={<h1>CSV Download</h1>} arrow>
           <span>
-            <CSVLink data={csvData} filename={`my-private-words.csv`}>
+            {/* <CSVLink data={csvData} filename={`my-private-words.csv`}>
               <DownloadIcon fontSize='large' />
-            </CSVLink>
+            </CSVLink> */}
           </span>
         </Tooltip>
-        <Tooltip title={<h1>Category Delete</h1>} arrow>
+        {
+          selectedCategory !== "1" && 
+          <Tooltip title={<h1>Category Delete</h1>} arrow>
+            <span onClick={deleteCategory}>
+              <DeleteIcon fontSize='large' />
+            </span>
+          </Tooltip> 
+          
+        }
+        {/* <Tooltip title={<h1>Category Delete</h1>} arrow>
           <span onClick={deleteCategory}>
             <DeleteIcon fontSize='large' />
           </span>
-        </Tooltip>
+        </Tooltip> */}
       </IconWrapper>
       <AllItemsWrapper>
         {
@@ -203,13 +233,13 @@ const MainContents = () => {
           })
         }
     </AllItemsWrapper>
-    <ResetBtnWrapper>
+    {/* <ResetBtnWrapper>
       <Tooltip title={<h1>Reset</h1>} arrow>
         <Fab onClick={() => reset()} color="secondary">
           <RestartAltIcon  fontSize='large' />
         </Fab>
       </Tooltip>
-    </ResetBtnWrapper>
+    </ResetBtnWrapper> */}
     <BtnWrapper>
       <Tooltip title={<h1>Add Word</h1>} arrow>
         <Fab onClick={() => toggleShowAddWord()} color="primary" aria-label="add">
@@ -240,7 +270,6 @@ const MainContents = () => {
       </Tooltip>
     </BtnWrapper>
     <AddCategory show={showAddCategory} func={toggleShowAddCategory} />
-    {/* <AddWord show={showAddWord} func={toggleShowAddWord} /> */}
     </Wrapper>
   )
 }
