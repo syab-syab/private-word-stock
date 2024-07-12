@@ -140,16 +140,6 @@ const MainContents = () => {
   );
 
 
-
-  // const csvData = [
-  //   ["おはようございます"],
-  //   ["こんにちは"],
-  //   ["こんばんは"],
-  //   ["おやすみなさい"],
-  //   ["ごきげんよう"]
-  // ];
-
-
   const reset = () => {
 
     if (window.confirm("初期化しますか？")) {
@@ -183,13 +173,6 @@ const MainContents = () => {
         </SelectCategory>
       </SelectCategoryWrapper>
       <IconWrapper>
-        {/* <Tooltip title={<h1>CSV Download</h1>} arrow>
-          <span>
-            <CSVLink data={createCsvData(selectedWords)} filename={`my-private-words.csv`}>
-              <DownloadIcon fontSize='large' />
-            </CSVLink>
-          </span>
-        </Tooltip> */}
         {
           selectedCategory !== "0" && 
           <>
@@ -207,17 +190,12 @@ const MainContents = () => {
             </Tooltip>
           </>
         }
-        {/* <Tooltip title={<h1>Category Delete</h1>} arrow>
-          <span onClick={deleteCategory}>
-            <DeleteIcon fontSize='large' />
-          </span>
-        </Tooltip> */}
       </IconWrapper>
       <AllItemsWrapper>
         {
           selectedWords?.map((word) => {
             return (
-              <WordItem itemIndex={word.id} itemWord={word.content} />
+              <WordItem key={word.id} itemIndex={word.id} itemWord={word.content} />
             )
           })
         }
