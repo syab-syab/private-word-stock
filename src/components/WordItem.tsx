@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Tooltip from '@mui/material/Tooltip';
+import { db } from '../models/db';
 
 
 const Wrapper = styled.div`
@@ -60,9 +61,10 @@ type Props = {
 
 const WordItem = (props: Props) => {
 
-  const deleteItem = (): void => {
+  const deleteItem = (id: number | undefined): void => {
     const tmp = window.confirm("このワードを削除しますか？")
     if (tmp) {
+      db.words.delete(id)
       alert("削除しました。")
     }
   }
@@ -76,7 +78,7 @@ const WordItem = (props: Props) => {
     <Wrapper key={props.itemIndex}>
       <Item>
         <Tooltip title={<h1>Delete</h1>} arrow>
-          <WordItemDelBtn onClick={() => deleteItem()}>
+          <WordItemDelBtn onClick={() => deleteItem(props.itemIndex)}>
             <DeleteIcon fontSize='large' />
           </WordItemDelBtn>                
         </Tooltip>

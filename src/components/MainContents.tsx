@@ -94,7 +94,6 @@ const MainContents = () => {
   // ];
 
 
-  // const [selectedCategory, setSelectedCategory] = useState<string>(String(allCategoryId[0]))
   const [showAddWord, setShowAddWord] = useState<boolean>(false)
   const [showAddCategory, setShowAddCategory] = useState<boolean>(false)
 
