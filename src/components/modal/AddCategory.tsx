@@ -113,14 +113,19 @@ const AddCategory = (props: Props) => {
     setName(e.target.value)
   }
   const subscribeNewCategory = (): void => {
-    const tmp = window.confirm("カテゴリを新規追加しますか？")
-    if (tmp) {
-      db.categories.add({name})
-      setName("")
-      alert("追加しました")
-      props.func()
-      // props.setState()
+    if (name.length <= 1) {
+      alert('一文字以上でお願いします。')
+    } else {
+      const tmp = window.confirm("カテゴリを新規追加しますか？")
+      if (tmp) {
+        db.categories.add({name})
+        setName("")
+        alert("追加しました")
+        props.func()
+        // props.setState()
     }
+    }
+
   }
 
   if (props.show) {

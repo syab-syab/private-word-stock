@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import styled from 'styled-components';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Tooltip from '@mui/material/Tooltip';
-// import DownloadIcon from '@mui/icons-material/Download';
-// import { CSVLink } from "react-csv";
+import DownloadIcon from '@mui/icons-material/Download';
+import { CSVLink } from "react-csv";
 import WordItem from './WordItem';
 import { db } from '../models/db';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -11,10 +11,13 @@ import AddIcon from '@mui/icons-material/Add';
 import AddCategory from './modal/AddCategory';
 import AddWord from './modal/AddWord';
 import Fab from '@mui/material/Fab';
-// import RestartAltIcon from '@mui/icons-material/RestartAlt';
-// import { resetData } from '../models/db';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { resetData } from '../models/db';
 import { Category } from '../models/Category';
 import { localSetItem, localGetItem } from '../functions/localStorageFunc';
+import firstCategoryId from '../functions/firstCategoryId';
+import { Word } from '../models/Word';
+import createCsvData from '../functions/createCsvData';
 
 
 
@@ -74,33 +77,21 @@ const BtnWrapper = styled.div`
   }
 `
 
-// const ResetBtnWrapper = styled.div`
-//   position: fixed;
-//   bottom: 13rem;
-//   right: 3rem;
-//   @media (max-width: 700px) {
-//     bottom: 10rem;
-//     right: 3rem;
-//   }
-// `
+const ResetBtnWrapper = styled.div`
+  position: fixed;
+  bottom: 13rem;
+  right: 3rem;
+  @media (max-width: 700px) {
+    bottom: 10rem;
+    right: 3rem;
+  }
+`
 
 const MainContents = () => {
-  // const csvData = [
-  //   ["おはようございます"],
-  //   ["こんにちは"],
-  //   ["こんばんは"],
-  //   ["おやすみなさい"],
-  //   ["ごきげんよう"]
-  // ];
-
 
   const [showAddWord, setShowAddWord] = useState<boolean>(false)
   const [showAddCategory, setShowAddCategory] = useState<boolean>(false)
 
-  // const toggleSelectedCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedCategory(e.target.value)
-  //   console.log(selectedCategory)
-  // }
 
   const toggleShowAddWord = (): void => {
    setShowAddWord(!showAddWord) 
@@ -111,18 +102,6 @@ const MainContents = () => {
   }
 
   const allCategories: Array<Category> | undefined = useLiveQuery(() => db.categories.toArray());
-
-  // const idExtraction = (arr: Array<Category> | undefined) => {
-  //   let idArr: Array<any> | undefined = []
-  //   if (arr !== undefined) {
-  //         arr?.forEach(a => {
-  //     idArr?.push(a.id)
-  //   })
-  //   }
-  //   return idArr
-  // }
-
-  // const firstCategoryId: number = idExtraction(allCategories)[0]
 
   // カテゴリIDの状態管理が一番の問題児
   const localSelectedCategory: string = "localSelectedCategory"
@@ -152,13 +131,12 @@ const MainContents = () => {
     if (tmp) {
       db.deleteCategory(Number(selectedCategory))
       alert("削除しました")
-      setSelectedCategory("1")
+      hasAnyCategory ? toggleSelectedCategory(String(firstCategoryId(allCategories)[0])) : toggleSelectedCategory("1")
     }
   }
 
-  const selectedWords = useLiveQuery(
-    () => db.words.where({ categoryId: Number(selectedCategory) }).toArray(),
-    [Number(selectedCategory)]
+  const selectedWords: Array<Word> | undefined = useLiveQuery(() => 
+    db.words.where({ categoryId: Number(selectedCategory) }).toArray(),[selectedCategory]
   );
 
 
@@ -172,13 +150,16 @@ const MainContents = () => {
   // ];
 
 
-  // const reset = (): void => {
+  const reset = () => {
 
-  //   if (window.confirm("初期化しますか？")) {
-  //     resetData()
-  //     alert("初期化しました。")
-  //   }
-  // }
+    if (window.confirm("初期化しますか？")) {
+      resetData()
+      alert("初期化しました。")
+      // const tmp = String(firstCategoryId(allCategories)[0])
+      // toggleSelectedCategory(tmp)
+      toggleSelectedCategory("0")
+    }
+  }
 
   return hasAnyCategory ? (
     <Wrapper>
@@ -191,31 +172,40 @@ const MainContents = () => {
         </Tooltip>
         <br />
         <SelectCategory onChange={(e) => toggleSelectedCategory(e.target.value)} value={selectedCategory}>
+          <option value="0">カテゴリ選択</option>
           {
             allCategories?.map(c => {
               return (
-                <option value={c.id} key={c.id}>{c.name}</option>
+                <option value={c.id} key={c.id} onClick={() => console.log("テスト")}>{c.name}</option>
               )
             })
           }
         </SelectCategory>
       </SelectCategoryWrapper>
       <IconWrapper>
-        <Tooltip title={<h1>CSV Download</h1>} arrow>
+        {/* <Tooltip title={<h1>CSV Download</h1>} arrow>
           <span>
-            {/* <CSVLink data={csvData} filename={`my-private-words.csv`}>
+            <CSVLink data={createCsvData(selectedWords)} filename={`my-private-words.csv`}>
               <DownloadIcon fontSize='large' />
-            </CSVLink> */}
+            </CSVLink>
           </span>
-        </Tooltip>
+        </Tooltip> */}
         {
-          selectedCategory !== "1" && 
-          <Tooltip title={<h1>Category Delete</h1>} arrow>
-            <span onClick={deleteCategory}>
-              <DeleteIcon fontSize='large' />
+          selectedCategory !== "0" && 
+          <>
+          <Tooltip title={<h1>CSV Download</h1>} arrow>
+            <span>
+              <CSVLink data={createCsvData(selectedWords)} filename={`my-private-words.csv`}>
+                <DownloadIcon fontSize='large' />
+              </CSVLink>
             </span>
-          </Tooltip> 
-          
+          </Tooltip>
+            <Tooltip title={<h1>Category Delete</h1>} arrow>
+              <span onClick={deleteCategory}>
+                <DeleteIcon fontSize='large' />
+              </span>
+            </Tooltip>
+          </>
         }
         {/* <Tooltip title={<h1>Category Delete</h1>} arrow>
           <span onClick={deleteCategory}>
@@ -232,13 +222,13 @@ const MainContents = () => {
           })
         }
     </AllItemsWrapper>
-    {/* <ResetBtnWrapper>
+    <ResetBtnWrapper>
       <Tooltip title={<h1>Reset</h1>} arrow>
         <Fab onClick={() => reset()} color="secondary">
           <RestartAltIcon  fontSize='large' />
         </Fab>
       </Tooltip>
-    </ResetBtnWrapper> */}
+    </ResetBtnWrapper>
     <BtnWrapper>
       <Tooltip title={<h1>Add Word</h1>} arrow>
         <Fab onClick={() => toggleShowAddWord()} color="primary" aria-label="add">
@@ -261,6 +251,13 @@ const MainContents = () => {
       <div>
         <h1 onClick={toggleShowAddCategory}>カテゴリ追加</h1>
       </div>
+      <ResetBtnWrapper>
+        <Tooltip title={<h1>Reset</h1>} arrow>
+          <Fab onClick={() => reset()} color="secondary">
+            <RestartAltIcon  fontSize='large' />
+          </Fab>
+        </Tooltip>
+      </ResetBtnWrapper>
       <BtnWrapper>
       <Tooltip title={<h1>Add Word</h1>} arrow>
         <Fab onClick={() => toggleShowAddWord()} color="primary" aria-label="add">

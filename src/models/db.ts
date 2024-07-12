@@ -33,7 +33,9 @@ db.on('populate', populate);
 // 本番で入れるかどうか迷う
 export function resetData() {
   return db.transaction('rw', db.categories, db.words, async () => {
-    await Promise.all(db.tables.map(table => table.clear()));
-    await populate();
+    await Promise.all(db.tables.map(table => table.clear()))
+    console.log("reset1")
+    await populate()
+    console.log("reset2")
   });
 }
