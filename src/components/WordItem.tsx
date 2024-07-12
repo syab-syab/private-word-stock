@@ -49,8 +49,17 @@ const WordItemSpace = styled.div`
 `
 
 const WordItemCopyBtn = styled.div`
-  flex-grow: 1;
-  border-left: 0.3rem black solid;
+  & {
+    flex-grow: 1;
+    border-left: 0.3rem black solid;    
+  }
+  &:hover {
+    background: white;
+  }
+  &:active {
+    box-shadow: inset 0px 12px 25px 5px rgba(0, 0, 0, 0.4);
+  }
+
 `
 
 
@@ -71,7 +80,7 @@ const WordItem = (props: Props) => {
 
   const copyItem = (word: string): void => {
     navigator.clipboard.writeText(word)
-    alert(`${word}をコピーしました`)
+    // alert(`${word}をコピーしました`)
   }
 
   return (
