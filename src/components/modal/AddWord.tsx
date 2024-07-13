@@ -127,7 +127,7 @@ type Props = {
 
 const AddWord = (props: Props) => {
   const [word, setWord] = useState<string>("")
-  const [categoryId, setCategoryId] = useState<string>("")
+  const [categoryId, setCategoryId] = useState<string>("0")
 
   const handleWordChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     setWord(e.target.value)
@@ -148,6 +148,8 @@ const AddWord = (props: Props) => {
     const check: boolean = newWords.some(t => t.length <= 1)
     if (check) {
       alert('一文字以上でお願いします。')
+    } else if (categoryId==="0") {
+      alert("カテゴリを選択してください。")
     } else {
       newWords.forEach(w => {
         db.words.add({
@@ -179,7 +181,8 @@ const AddWord = (props: Props) => {
           </InputWrapper>
           <InputWrapper>
             <SubHeading>カテゴリ</SubHeading>
-            <Select onChange={handleCategoryId}>
+            <Select onChange={handleCategoryId} value={categoryId}>
+              <option value="0">カテゴリ選択</option>
               {
                 props.allCategories?.map(c => {
                   return <option value={c.id} key={c.id}>{c.name}</option>
